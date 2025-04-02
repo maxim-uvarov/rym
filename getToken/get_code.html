@@ -37,10 +37,25 @@
 
 <script>
 window.onload = function() {
-document.getElementById('txt1').innerHTML = window.location.href.slice(window.location.href.indexOf('=') + 1, window.location.href.slice().length);
-token = document.getElementById('txt1').innerHTML;
-navigator.clipboard.writeText(token);
-window.setTimeout("document.location.href='/rym/';", 30000);
+    const url = window.location.href;
+     const codeMatch = url.match(/code=([^&]+)/);
+ 
+     if (codeMatch && codeMatch[1]) {
+         const code = codeMatch[1];
+         document.getElementById('txt1').innerHTML = code;
+         navigator.clipboard.writeText(code)
+             .then(() => {
+                 console.log("Code скопирован в буфер обмена:", code);
+             })
+             .catch((err) => {
+                 console.error("Не удалось скопировать code в буфер обмена:", err);
+             });
+         window.setTimeout(() => {
+             document.location.href = '/rym/';
+         }, 30000);
+     } else {
+         console.error("Параметр 'code' не найден в URL.");
+     }
 }
 </script>
 
