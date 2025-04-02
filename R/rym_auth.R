@@ -17,17 +17,21 @@ rym_auth <-
 
     # token save
 
+	gr_type <- "authorization_code"
+	id_cl <- "5a87e45d5562421bb29bb9abd17321b3"
+	secret_cl <- "04e7f096ce21483fb1c9861f68c017d7"
+	
     if (new.user == FALSE && file.exists(paste0(paste0(token.path, "/", login, ".rymAuth.RData")))) {
       message("Load token from ", paste0(paste0(token.path, "/", login, ".rymAuth.RData")))
       load(paste0(token.path, "/", login, ".rymAuth.RData"))
       # check token expire
-      if (as.numeric(token$expire_at - Sys.time(), units = "days") < 30) {
+      if (as.numeric(difftime(token$expire_at, Sys.time(), units = "days")) < 30) {
         message("Auto refresh token")
         token_raw <- httr::POST("https://oauth.yandex.ru/token", body = list(
-          grant_type = "refresh_token",
+          grant_type = gr_type,
           refresh_token = token$refresh_token,
-          client_id = "5a87e45d5562421bb29bb9abd17321b3",
-          client_secret = "04e7f096ce21483fb1c9861f68c017d7"
+          client_id = id_cl,
+          client_secret = secret_cl
         ), encode = "form")
         # check error
         if (!is.null(token$error_description)) {
@@ -61,30 +65,32 @@ rym_auth <-
       }
     }
     # if we dont find token file start a auth procedure
-    browseURL(paste0("https://oauth.yandex.ru/authorize?response_type=code&client_id=5a87e45d5562421bb29bb9abd17321b3&redirect_uri=https://selesnow.github.io/rym/getToken/get_code.html&force_confirm=", as.integer(new.user), ifelse(is.null(login), "", paste0("&login_hint=", login))))
+    browseURL(paste0("https://oauth.yandex.ru/authorize?response_type=code&client_id=5a87e45d5562421bb29bb9abd17321b3&redirect_uri=https://zertyuiop.github.io/rym/getToken/get_code.html&force_confirm=", as.integer(new.user), ifelse(is.null(login), "", paste0("&login_hint=", login))))
     # read auth code
     temp_code <- readline(prompt = "Enter authorize code:")
 
     # check code
-    while (nchar(temp_code) != 7) {
-      message("The verification code you entered is not a 7-digit code, please try entering the code again.")
+    while (nchar(temp_code) != 16) {
+      message("The verification code you entered is not a 16-digit code, please try entering the code again.")
       temp_code <- readline(prompt = "Enter authorize code:")
     }
 
-    token_raw <- httr::POST("https://oauth.yandex.ru/token", body = list(
-      grant_type = "authorization_code",
-      code = temp_code,
-      client_id = "5a87e45d5562421bb29bb9abd17321b3",
-      client_secret = "04e7f096ce21483fb1c9861f68c017d7"
-    ), encode = "form")
-    # parsing
-    token <- content(token_raw)
-    
+    body_data <- list(
+    grant_type = gr_type,
+    code = temp_code,
+    client_id = id_cl,
+    client_secret = secret_cl)
+  
+	response <- request("https://oauth.yandex.ru/token") %>%
+    req_body_form(!!!body_data) %>%
+    req_perform()
+ 
+	token <- resp_body_json(response)
+	token$expire_at <- Sys.time() + token$expires_in
     # token class
     class(token) <- "RymToken"
     
     # add info about expire time and login
-    token$expire_at <- Sys.time() + as.numeric(token$expires_in, units = "secs")
     token$username  <- login
     
     # check error
