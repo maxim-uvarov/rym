@@ -18,8 +18,8 @@ rym_auth <-
     # token save
 
 	gr_type <- "authorization_code"
-	id_cl <- "5a87e45d5562421bb29bb9abd17321b3"
-	secret_cl <- "04e7f096ce21483fb1c9861f68c017d7"
+	id_cl <- "ce8a59be64034bcaaa2ab190dc29b46e"
+	secret_cl <- "0c658b33270245aa99b1f523d1b95c1b"
 	
     if (new.user == FALSE && file.exists(paste0(paste0(token.path, "/", login, ".rymAuth.RData")))) {
       message("Load token from ", paste0(paste0(token.path, "/", login, ".rymAuth.RData")))
