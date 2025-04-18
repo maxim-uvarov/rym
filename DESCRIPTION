@@ -24,7 +24,7 @@ BugReports: https://github.com/selesnow/rym/issues
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 License: GPL-2
-Imports: httr, stringr, utils, purrr
+Imports: httr, stringr, utils, purrr, httr2
 URL: https://selesnow.github.io/rym/
 Encoding: UTF-8
 Language: ru
