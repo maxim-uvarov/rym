@@ -1,3 +1,4 @@
+#' @importFrom httr2 %>%
 rym_auth <-
   function(login = getOption("rym.user"), 
            new.user = FALSE, 
